@@ -1,62 +1,10 @@
 <!DOCTYPE html>
-<html lang="fi">
+<html>
 <head>
   <meta charset="UTF-8">
   <title>Fyntiz</title>
-  <style>
-    /* Latausanimaatio */
-    #loader {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2em;
-      font-family: sans-serif;
-      z-index: 1000;
-      transition: opacity 0.5s ease;
-    }
-
-    /* Piilotetaan kun ladattu */
-    #loader.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    /* Varsinainen sisältö */
-    #content {
-      display: none;
-      text-align: center;
-      padding-top: 100px;
-      font-family: sans-serif;
-    }
-
-    body.loaded #content {
-      display: block;
-    }
-  </style>
 </head>
 <body>
-
-  <!-- Latausnäyttö -->
-  <div id="loader">Fyntiz lataa...</div>
-
-  <!-- Sivun varsinainen sisältö -->
-  <div id="content">
-    <h1>Tervetuloa Fyntiz-sivulle!</h1>
-    <p>Sivun sisältö on nyt ladattu.</p>
-  </div>
-
-  <script>
-    // Kun koko sivu on ladattu, piilotetaan lataaja ja näytetään sisältö
-    window.addEventListener('load', () => {
-      document.getElementById('loader').classList.add('hidden');
-      document.body.classList.add('loaded');
-    });
-  </script>
+  <h1>Fyntiz lataa...</h1>
 </body>
 </html>
