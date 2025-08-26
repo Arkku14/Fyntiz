@@ -1,71 +1,103 @@
 <!DOCTYPE html>
 <html lang="fi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Fyntiz</title>
+  <meta charset="UTF-8">
+  <title>Fyntiz Chat</title>
   <style>
-    body, html {
-      margin: 0; padding: 0;
+    body {
       background-color: #000;
       color: #fff;
       font-family: 'Segoe UI', sans-serif;
-      height: 100vh;
-      overflow: hidden;
+      padding: 20px;
     }
-    #loader {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background-color: #000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      transition: opacity 0.8s ease, visibility 0.8s ease;
+
+    #chat {
+      max-width: 600px;
+      margin: auto;
     }
-    .spinner {
-      border: 6px solid #222;
-      border-top: 6px solid #fff;
-      border-radius: 50%;
-      width: 60px; height: 60px;
-      animation: spin 1s linear infinite;
-      margin-bottom: 20px;
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
     }
-    @keyframes spin {
-      0% { transform: rotate(0deg);}
-      100% { transform: rotate(360deg);}
+
+    .msg {
+      margin: 10px 0;
     }
-    #main-content {
-      display: none;
-      text-align: center;
-      padding-top: 20vh;
+
+    .user {
+      color: #0f0;
     }
-    body.loaded #loader {
-      opacity: 0;
-      visibility: hidden;
-    }
-    body.loaded #main-content {
-      display: block;
+
+    .bot {
+      color: #0ff;
     }
   </style>
 </head>
 <body>
-  <div id="loader">
-    <div class="spinner"></div>
-    <h2>Fyntiz lataa...</h2>
-  </div>
-
-  <div id="main-content">
+  <div id="chat">
+    <div id="messages"></div>
+    <input type="text" id="userInput" placeholder="Kirjoita viesti ja paina Enter..." />
   </div>
 
   <script>
-    window.addEventListener("load", () => {
-      setTimeout(() => {
-        document.body.classList.add("loaded");
-      }, 5000); // 5 sekuntia
+    const input = document.getElementById('userInput');
+    const messages = document.getElementById('messages');
+
+    const vastaukset = [
+      "Mielenkiintoista, kerro lisää!",
+      "Aika jännää!",
+      "Eikö olekin?",
+      "En ole varma, mitä tarkoitat.",
+      "mitä mieltä olla?",
+      "Hahhaa, hauska vitsi :DD",
+      "Mitä mieltä olet itse asiasta?",
+      "Onpa hauskaa keskustella!",
+      "Onko huomenna keskiviikko? Tai ehkä tiistai?",
+      "Tiesitkö että tämän on koodannut Armin?",
+      "Joo, en tuu auttaa sua läksyissä :DD",
+      "No on se ihan kivaa.",
+      "Kiva kuulla!",
+      "No jos kerran on pakko.",
+      "KYLLÄ",
+      "Juu",
+      "Huomenna",
+      "Kiitos hyvää!",
+      "Kyllä kiitos.",
+      "No ei ikävä kyllä.",
+      "Hauska fakta: tiesitkö että sytkäri keksittiin ennen tulitikkuja?"
+    ];
+
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        const text = input.value.trim();
+        if (text === '') return;
+        
+        showMessage("Sinä: " + text, 'user');
+
+        if (text.toLowerCase() === 'lopeta') {
+          showMessage("Fyntiz: Oli kiva jutella, moikka!", 'bot');
+          input.disabled = true;
+          return;
+        }
+
+        const vastaus = vastaukset[Math.floor(Math.random() * vastaukset.length)];
+        showMessage("Fyntiz: " + vastaus, 'bot');
+        input.value = '';
+      }
     });
+
+    function showMessage(msg, cls) {
+      const div = document.createElement('div');
+      div.textContent = msg;
+      div.classList.add('msg', cls);
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+    }
   </script>
 </body>
 </html>
