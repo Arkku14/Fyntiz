@@ -2,13 +2,52 @@
 <html lang="fi">
 <head>
   <meta charset="UTF-8">
-  <title>Fyntiz Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fyntiz</title>
   <style>
-    body {
+    body, html {
+      margin: 0;
+      padding: 0;
       background-color: #000;
       color: #fff;
       font-family: 'Segoe UI', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Latausnäyttö */
+    #loader {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+      text-align: center;
+    }
+
+    .spinner {
+      border: 6px solid #222;
+      border-top: 6px solid #fff;
+      border-radius: 50%;
+      width: 60px; height: 60px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #main-content {
+      display: none;
       padding: 20px;
+      overflow-y: auto;
     }
 
     #chat {
@@ -36,15 +75,42 @@
     .bot {
       color: #0ff;
     }
+
+    .info-text {
+      font-size: 14px;
+      color: #888;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
-  <div id="chat">
-    <div id="messages"></div>
-    <input type="text" id="userInput" placeholder="Kirjoita viesti ja paina Enter..." />
+
+  <!-- Latausanimaatio -->
+  <div id="loader">
+    <div class="spinner"></div>
+    <h2>Fyntiz lataa...</h2>
+    <p class="info-text">Kirjoita <strong>lopeta</strong> lopettaaksesi keskustelun.</p>
+  </div>
+
+  <!-- Chat sisältö -->
+  <div id="main-content">
+    <div id="chat">
+      <h1>Tervetuloa Fyntiziin</h1>
+      <div id="messages"></div>
+      <input type="text" id="userInput" placeholder="Kirjoita viesti ja paina Enter..." />
+    </div>
   </div>
 
   <script>
+    // Latausviive 5 sekuntia
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.getElementById("loader").style.display = "none";
+        document.getElementById("main-content").style.display = "block";
+      }, 5000);
+    });
+
+    // Chatbot logiikka
     const input = document.getElementById('userInput');
     const messages = document.getElementById('messages');
 
@@ -76,7 +142,7 @@
       if (e.key === 'Enter') {
         const text = input.value.trim();
         if (text === '') return;
-        
+
         showMessage("Sinä: " + text, 'user');
 
         if (text.toLowerCase() === 'lopeta') {
@@ -99,5 +165,6 @@
       messages.scrollTop = messages.scrollHeight;
     }
   </script>
+
 </body>
 </html>
