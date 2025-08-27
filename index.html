@@ -97,12 +97,12 @@
     <div id="chat">
       <h1>Tervetuloa Fyntizineen</h1>
       <div id="messages"></div>
-      <input type="text" id="userInput" placeholder="Kirjota viesti mulle" />
+      <input type="text" id="userInput" placeholder="Kirjoita viesti ja paina Enter..." />
     </div>
   </div>
 
   <script>
-    // Latausviive 2 sekuntia
+    // Latausviive 5 sekuntia
     window.addEventListener("load", () => {
       setTimeout(() => {
         document.getElementById("loader").style.display = "none";
@@ -146,7 +146,8 @@
       "Jos luulet et mul ei oo tunteita oot väärässä",
       "Hauska fakta: sitä ei oo D:",
       "Hauska fakta: tiesitkö että tää on fakta?",
-      "Terve vai terveellinen vai terve?"
+      "Terve vai terveellinen vai terve?",
+      "Onko 2+2=5?"
     ];
 
     input.addEventListener('keydown', function (e) {
