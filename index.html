@@ -64,23 +64,73 @@
       font-size: 16px;
     }
 
-    .msg {
-      margin: 10px 0;
-    }
+    .msg { margin: 10px 0; }
+    .user { color: #0f0; }
+    .bot { color: #0ff; }
+    .info-text { font-size: 14px; color: #888; margin-top: 10px; }
 
-    .user {
-      color: #0f0;
+    /* Kolikko-UI ja valikot */
+    header {
+      position: fixed;
+      top: 10px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      font-size: 20px;
+      z-index: 10;
     }
-
-    .bot {
-      color: #0ff;
+    header img {
+      width: 30px;
+      margin-right: 10px;
     }
-
-    .info-text {
-      font-size: 14px;
-      color: #888;
-      margin-top: 10px;
+    nav {
+      position: fixed;
+      top: 50%;
+      left: 10px;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      z-index: 10;
     }
+    nav button {
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    nav img {
+      width: 50px;
+      height: 50px;
+    }
+    .page {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      padding: 20px;
+      box-sizing: border-box;
+      z-index: 20;
+    }
+    .page h1 { margin-top: 60px; }
+    .close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      cursor: pointer;
+      width: 40px;
+    }
+    button.action {
+      padding: 10px 20px;
+      font-size: 18px;
+      margin-top: 20px;
+      border: none;
+      cursor: pointer;
+    }
+    .task { margin-top: 10px; }
+    .shop-item { margin: 10px 0; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -92,8 +142,46 @@
     <p class="info-text">Kirjoita <strong>lopeta</strong> lopettaaksesi keskustelun.</p>
   </div>
 
-  <!-- Chat sisältö -->
+  <!-- Chat + UI -->
   <div id="main-content">
+    <header>
+      <img src="https://img.icons8.com/emoji/48/coin-emoji.png" alt="Kolikko">
+      <span id="coins">0</span>
+    </header>
+
+    <nav>
+      <button onclick="openPage('daily')"><img src="https://img.icons8.com/ios-filled/50/gift.png" alt="Daily"></button>
+      <button onclick="openPage('tasks')"><img src="https://img.icons8.com/ios-filled/50/task.png" alt="Tasks"></button>
+      <button onclick="openPage('shop')"><img src="https://img.icons8.com/ios-filled/50/shop.png" alt="Shop"></button>
+    </nav>
+
+    <!-- Daily Reward -->
+    <div id="daily" class="page">
+      <img src="https://img.icons8.com/ios-filled/50/macos-close.png" class="close" onclick="closePage('daily')">
+      <h1>Päivittäinen palkinto</h1>
+      <button id="claimDaily" class="action" onclick="claimDaily()">Lunasta 100 kolikkoa</button>
+    </div>
+
+    <!-- Tasks -->
+    <div id="tasks" class="page">
+      <img src="https://img.icons8.com/ios-filled/50/macos-close.png" class="close" onclick="closePage('tasks')">
+      <h1>Päivittäiset tehtävät</h1>
+      <div id="taskList"></div>
+    </div>
+
+    <!-- Shop -->
+    <div id="shop" class="page">
+      <img src="https://img.icons8.com/ios-filled/50/macos-close.png" class="close" onclick="closePage('shop')">
+      <h1>Kauppa</h1>
+      <div class="shop-item" onclick="buyBackground('blue')">Sininen tausta - 1200 kolikkoa</div>
+      <div class="shop-item" onclick="buyBackground('red')">Punainen tausta - 1200 kolikkoa</div>
+      <div class="shop-item" onclick="buyBackground('green')">Vihreä tausta - 1200 kolikkoa</div>
+      <div class="shop-item" onclick="buyBackground('yellow')">Keltainen tausta - 1200 kolikkoa</div>
+      <div class="shop-item" onclick="buyBackground('purple')">Violetti tausta - 1200 kolikkoa</div>
+      <div class="shop-item" onclick="buyBackground('pink')">Pinkki tausta - 1200 kolikkoa</div>
+    </div>
+
+    <!-- Chat -->
     <div id="chat">
       <h1>Tervetuloa Fyntizineen</h1>
       <div id="messages"></div>
@@ -102,40 +190,27 @@
   </div>
 
   <script>
-    // Latausviive 5 sekuntia
+    // Kun sivu latautuu
     window.addEventListener("load", () => {
       setTimeout(() => {
         document.getElementById("loader").style.display = "none";
         document.getElementById("main-content").style.display = "block";
+        initGameUI(); // Käynnistetään nappisysteemi vasta kun spinneri on hävinnyt
       }, 5000);
     });
 
     // Chatbot logiikka
     const input = document.getElementById('userInput');
     const messages = document.getElementById('messages');
-
     const vastaukset = [
-      "Mielenkiintoista, kerro lisää!",
-      "Aika jännää!",
-      "Eikö olekin?",
-      "En ole varma, mitä tarkoitat.",
-      "mitä mieltä olla?",
-      "Hahhaa, hauska vitsi :DD",
-      "Mitä mieltä olet itse asiasta?",
-      "Onpa hauskaa keskustella!",
-      "Onko huomenna keskiviikko? Tai ehkä tiistai?",
-      "Tiesitkö että tämän on koodannut Armin?",
-      "Joo, en tuu auttaa sua läksyissä :DD",
-      "No on se ihan kivaa.",
-      "Kiva kuulla!",
-      "No jos kerran on pakko.",
-      "KYLLÄ",
-      "Juu",
-      "Huomenna",
-      "Kiitos hyvää!",
-      "Kyllä kiitos.",
-      "No ei ikävä kyllä.",
-      "Hauska fakta: tiesitkö että sytkäri keksittiin ennen tulitikkuja?"
+      "Mielenkiintoista, kerro lisää!", "Aika jännää!", "Eikö olekin?",
+      "En ole varma, mitä tarkoitat.", "mitä mieltä olla?",
+      "Hahhaa, hauska vitsi :DD", "Mitä mieltä olet itse asiasta?",
+      "Onpa hauskaa keskustella!", "Onko huomenna keskiviikko? Tai ehkä tiistai?",
+      "Tiesitkö että tämän on koodannut Armin?", "Joo, en tuu auttaa sua läksyissä :DD",
+      "No on se ihan kivaa.", "Kiva kuulla!", "No jos kerran on pakko.",
+      "KYLLÄ", "Juu", "Huomenna", "Kiitos hyvää!", "Kyllä kiitos.",
+      "No ei ikävä kyllä.", "Hauska fakta: tiesitkö että sytkäri keksittiin ennen tulitikkuja?"
     ];
 
     input.addEventListener('keydown', function (e) {
@@ -164,7 +239,69 @@
       messages.appendChild(div);
       messages.scrollTop = messages.scrollHeight;
     }
-  </script>
 
+    // ======= Kolikko/Shop/Daily/Tasks logiikka =======
+    let coins = parseInt(localStorage.getItem('coins')) || 0;
+    let lastDaily = localStorage.getItem('lastDaily') || null;
+    const tasks = [
+      { text: "Lähetä Fyntizikselle 10 viestiä", reward: 200 },
+      { text: "Lähetä Fyntizikselle 12 viestiä", reward: 200 },
+      { text: "Lähetä Fyntizikselle 15 viestiä", reward: 200 }
+    ];
+
+    function initGameUI() {
+      document.getElementById('coins').innerText = coins;
+      loadTasks();
+
+      const today = new Date().toDateString();
+      if (lastDaily === today) {
+        document.getElementById('claimDaily').disabled = true;
+        document.getElementById('claimDaily').style.background = 'gray';
+      }
+    }
+
+    function claimDaily() {
+      const now = new Date();
+      const today = now.toDateString();
+
+      if (lastDaily === today) {
+        alert("Olet jo lunastanut palkinnon tänään!");
+        return;
+      }
+      coins += 100;
+      localStorage.setItem('coins', coins);
+      localStorage.setItem('lastDaily', today);
+      document.getElementById('coins').innerText = coins;
+      document.getElementById('claimDaily').disabled = true;
+      document.getElementById('claimDaily').style.background = 'gray';
+      alert("Sait 100 kolikkoa!");
+    }
+
+    function loadTasks() {
+      const taskList = document.getElementById('taskList');
+      taskList.innerHTML = '';
+      tasks.forEach(task => {
+        const div = document.createElement('div');
+        div.className = 'task';
+        div.textContent = ${task.text} - Palkinto: ${task.reward} kolikkoa;
+        taskList.appendChild(div);
+      });
+    }
+
+    function buyBackground(color) {
+      if (coins < 1200) {
+        alert("Ei tarpeeksi kolikoita!");
+        return;
+      }
+      coins -= 1200;
+      document.body.style.backgroundColor = color;
+      localStorage.setItem('coins', coins);
+      document.getElementById('coins').innerText = coins;
+      alert(Ostit ${color} taustan!);
+    }
+
+    function openPage(id) { document.getElementById(id).style.display = 'block'; }
+    function closePage(id) { document.getElementById(id).style.display = 'none'; }
+  </script>
 </body>
 </html>
