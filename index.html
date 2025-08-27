@@ -20,7 +20,7 @@
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background-color: #000;
+      background: radial-gradient(circle at center, #111, #000);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -30,18 +30,31 @@
       text-align: center;
     }
 
-    .spinner {
-      border: 6px solid #222;
-      border-top: 6px solid #fff;
+    .ring-loader {
+      width: 60px;
+      height: 60px;
+      border: 6px solid transparent;
+      border-top: 6px solid #0ff;
+      border-right: 6px solid #0ff;
       border-radius: 50%;
-      width: 60px; height: 60px;
-      animation: spin 1s linear infinite;
+      animation: spin3d 1s linear infinite;
+      box-shadow: 0 0 20px #0ff;
       margin-bottom: 20px;
     }
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    @keyframes spin3d {
+      0% {
+        transform: rotate3d(1, 1, 0, 0deg);
+      }
+      100% {
+        transform: rotate3d(1, 1, 0, 360deg);
+      }
+    }
+
+    .info-text {
+      font-size: 14px;
+      color: #888;
+      margin-top: 10px;
     }
 
     #main-content {
@@ -75,19 +88,13 @@
     .bot {
       color: #0ff;
     }
-
-    .info-text {
-      font-size: 14px;
-      color: #888;
-      margin-top: 10px;
-    }
   </style>
 </head>
 <body>
 
   <!-- Latausanimaatio -->
   <div id="loader">
-    <div class="spinner"></div>
+    <div class="ring-loader"></div>
     <h2>Fyntiz lataa...</h2>
     <p class="info-text">Kirjoita <strong>lopeta</strong> lopettaaksesi keskustelun.</p>
   </div>
@@ -102,19 +109,24 @@
   </div>
 
   <script>
-    // Latausviive 5 sekuntia
+    // Latausviive + fade-out
     window.addEventListener("load", () => {
       setTimeout(() => {
-        document.getElementById("loader").style.display = "none";
-        document.getElementById("main-content").style.display = "block";
-      }, 2000);
+        const loader = document.getElementById("loader");
+        loader.style.opacity = '0';
+        loader.style.visibility = 'hidden';
+        setTimeout(() => {
+          loader.style.display = 'none';
+          document.getElementById("main-content").style.display = "block";
+        }, 800);
+      }, 2000); // Latausaika
     });
 
     // Chatbot logiikka
     const input = document.getElementById('userInput');
     const messages = document.getElementById('messages');
 
-    const HulluVastaukset = [
+    const vastaukset = [
       "Mielenkiintoista, kerro lisää!",
       "Aika jännää!",
       "Eikö olekin?",
@@ -147,19 +159,8 @@
       "Hauska fakta: sitä ei oo D:",
       "Hauska fakta: tiesitkö että tää on fakta?",
       "Terve vai terveellinen vai terve?",
-      "Onko 2+2=5?",
-      "Pizza on paras ainesosa sateessa.",
-      "Eikö olekin hullua että linnut osaavat lentää takaperin?"
+      "Onko 2+2=5?"
     ];
-
-    //joo näit se ymmärtää
-    const avainsanat = {
-      "moi": ["Hei hei, vai onko se moi moi?"],
-      "mitä": ["Mitäköhan se tarkoittaa? Ketsuppia ehkä?"],
-      "kuka" ["Olen hullujen maassa tehty robotti :DDDD"],
-      "paras" ["ylivoimaisesti minä :DD"],
-      "hullu" ["Siis mitä sä nyt selität??"]
-    };
 
     input.addEventListener('keydown', function (e) {
       if (e.key === 'Enter') {
@@ -174,21 +175,10 @@
           return;
         }
 
-      //tää sit tarkistaa niit avain sanoi
-      let loydetty = false
-      for(const key in avainsanat){
-        if(lowerText.includes(key)){
-          const vaihtoehdot = avainsanat[key];
-          vastaus = vaihtoehdot[Math.floor(Math.random()*vaihtoehdot.length)];
-          loydetty = true
-          break;
-        }
+        const vastaus = vastaukset[Math.floor(Math.random() * vastaukset.length)];
+        showMessage("Fyntiz: " + vastaus, 'bot');
+        input.value = '';
       }
-
-      if(!loydetty){
-        vastaus = hulluVastaukset[Math.floor(Math.random()*hulluVastaukset.length)];
-      }
-      
     });
 
     function showMessage(msg, cls) {
