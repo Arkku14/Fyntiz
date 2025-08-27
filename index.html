@@ -26,6 +26,7 @@
       align-items: center;
       justify-content: center;
       z-index: 9999;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
       text-align: center;
     }
 
@@ -47,7 +48,6 @@
       display: none;
       padding: 20px;
       overflow-y: auto;
-      position: relative;
     }
 
     #chat {
@@ -81,24 +81,6 @@
       color: #888;
       margin-top: 10px;
     }
-
-    /* Kolikkonäyttö */
-    #coinDisplay {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      font-size: 18px;
-      display: flex;
-      align-items: center;
-      z-index: 10000;
-    }
-
-    #coinDisplay img {
-      width: 24px;
-      height: 24px;
-      margin-right: 5px;
-    }
-
   </style>
 </head>
 <body>
@@ -110,38 +92,25 @@
     <p class="info-text">Kirjoita <strong>lopeta</strong> lopettaaksesi keskustelun.</p>
   </div>
 
-  <!-- Kolikko display -->
-  <div id="coinDisplay">
-    <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="Kolikko">
-    <span id="coinCount">0</span>
-  </div>
-
   <!-- Chat sisältö -->
   <div id="main-content">
     <div id="chat">
       <h1>Tervetuloa Fyntizineen</h1>
       <div id="messages"></div>
-      <input type="text" id="userInput" placeholder="Lähetä mulle viesti :D" />
+      <input type="text" id="userInput" placeholder="Kirjoita viesti ja paina Enter..." />
     </div>
   </div>
 
   <script>
-    // -------------------------------
-    // Spinner ja pääsisällön näyttö
-    // -------------------------------
+    // Latausviive 5 sekuntia
     window.addEventListener("load", () => {
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          document.getElementById("loader").style.display = "none";
-          document.getElementById("main-content").style.display = "block";
-
-          // Aloita salakoodit ja kolikot vasta kun sivu valmis
-          newCode(); // heti ensimmäinen koodi
-          setInterval(newCode, 30000); // uusi koodi 30 sek välein
-        }, 2000);
-      });
+      setTimeout(() => {
+        document.getElementById("loader").style.display = "none";
+        document.getElementById("main-content").style.display = "block";
+      }, 5000);
     });
 
+    // Chatbot logiikka
     const input = document.getElementById('userInput');
     const messages = document.getElementById('messages');
 
@@ -150,12 +119,12 @@
       "Aika jännää!",
       "Eikö olekin?",
       "En ole varma, mitä tarkoitat.",
-      "Mitä mieltä olla?",
+      "mitä mieltä olla?",
       "Hahhaa, hauska vitsi :DD",
       "Mitä mieltä olet itse asiasta?",
       "Onpa hauskaa keskustella!",
       "Onko huomenna keskiviikko? Tai ehkä tiistai?",
-      "Mun auto!",
+      "Tiesitkö että tämän on koodannut Armin?",
       "Joo, en tuu auttaa sua läksyissä :DD",
       "No on se ihan kivaa.",
       "Kiva kuulla!",
@@ -166,20 +135,27 @@
       "Kiitos hyvää!",
       "Kyllä kiitos.",
       "No ei ikävä kyllä.",
-      "Hauska fakta: tiesitkö että sytkäri keksittiin ennen tulitikkuja?",
-      "En muista.",
-      "Moi, heippa!",
-      "Mitä kuuluu?",
-      "Eikun siis eilen.",
-      "No joo",
-      "Vaan jos.",
-      "Kyllä vain :D",
-      "Jos luulet et mul ei oo tunteita oot väärässä",
-      "Hauska fakta: sitä ei oo D:",
-      "Hauska fakta: tiesitkö että tää on fakta?",
-      "Terve vai terveellinen vai terve?",
-      "Onko 2+2=5?"
+      "Hauska fakta: tiesitkö että sytkäri keksittiin ennen tulitikkuja?"
     ];
+
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        const text = input.value.trim();
+        if (text === '') return;
+
+        showMessage("Sinä: " + text, 'user');
+
+        if (text.toLowerCase() === 'lopeta') {
+          showMessage("Fyntiz: Oli kiva jutella, moikka!", 'bot');
+          input.disabled = true;
+          return;
+        }
+
+        const vastaus = vastaukset[Math.floor(Math.random() * vastaukset.length)];
+        showMessage("Fyntiz: " + vastaus, 'bot');
+        input.value = '';
+      }
+    });
 
     function showMessage(msg, cls) {
       const div = document.createElement('div');
@@ -188,65 +164,6 @@
       messages.appendChild(div);
       messages.scrollTop = messages.scrollHeight;
     }
-
-    // -------------------------------
-    // Kolikkosysteemi & salakoodi
-    // -------------------------------
-    let coins = 0;
-    let currentCode = "";
-    const finnishLetters = "abcdefghijklmnopqrstuvwxyzåäö";
-
-    function generateCode(length = 5) {
-      let code = "";
-      for (let i = 0; i < length; i++) {
-        code += finnishLetters[Math.floor(Math.random() * finnishLetters.length)];
-      }
-      return code;
-    }
-
-    function updateCoins() {
-      document.getElementById('coinCount').textContent = coins;
-    }
-
-    function newCode() {
-      currentCode = generateCode();
-      showMessage("Fyntiz: Salainen koodi on: " + currentCode, 'bot');
-    }
-
-    // -------------------------------
-    // Input tarkistus
-    // -------------------------------
-    input.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') {
-        const text = input.value.trim();
-        if (text === '') return;
-
-        showMessage("Sinä: " + text, 'user');
-
-        const lowerText = text.toLowerCase();
-
-        // Tarkista salakoodi
-        if (lowerText === currentCode) {
-          coins += 10;
-          updateCoins();
-          showMessage(Fyntiz: Oikein! Sait 10 kolikkoa. Sinulla nyt ${coins} kolikkoa., 'bot');
-          input.value = '';
-          return;
-        }
-
-        // Lopeta
-        if (lowerText === 'lopeta') {
-          showMessage("Fyntiz: Oli kiva jutella, moikka!", 'bot');
-          input.disabled = true;
-          return;
-        }
-
-        // Tavallinen vastaus
-        const vastaus = vastaukset[Math.floor(Math.random() * vastaukset.length)];
-        showMessage("Fyntiz: " + vastaus, 'bot');
-        input.value = '';
-      }
-    });
   </script>
 
 </body>
