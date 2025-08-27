@@ -26,7 +26,6 @@
       align-items: center;
       justify-content: center;
       z-index: 9999;
-      transition: opacity 0.8s ease, visibility 0.8s ease;
       text-align: center;
     }
 
@@ -113,7 +112,7 @@
 
   <!-- Kolikko display -->
   <div id="coinDisplay">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/7/70/Flat_gold_coin_icon.png" alt="Kolikko">
+    <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="Kolikko">
     <span id="coinCount">0</span>
   </div>
 
@@ -127,12 +126,20 @@
   </div>
 
   <script>
-    // Latausviive
+    // -------------------------------
+    // Spinner ja pääsisällön näyttö
+    // -------------------------------
     window.addEventListener("load", () => {
-      setTimeout(() => {
-        document.getElementById("loader").style.display = "none";
-        document.getElementById("main-content").style.display = "block";
-      }, 2000);
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          document.getElementById("loader").style.display = "none";
+          document.getElementById("main-content").style.display = "block";
+
+          // Aloita salakoodit ja kolikot vasta kun sivu valmis
+          newCode(); // heti ensimmäinen koodi
+          setInterval(newCode, 30000); // uusi koodi 30 sek välein
+        }, 2000);
+      });
     });
 
     const input = document.getElementById('userInput');
@@ -205,8 +212,6 @@
       currentCode = generateCode();
       showMessage("Fyntiz: Salainen koodi on: " + currentCode, 'bot');
     }
-
-    setInterval(newCode, 30000); // uusi koodi joka 30 sek
 
     // -------------------------------
     // Input tarkistus
