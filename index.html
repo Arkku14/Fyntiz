@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="fi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fyntiz</title>
   <style>
     body, html {
@@ -26,8 +26,6 @@
       align-items: center;
       justify-content: center;
       z-index: 9999;
-      opacity: 1;
-      visibility: visible;
       transition: opacity 0.8s ease, visibility 0.8s ease;
       text-align: center;
     }
@@ -50,13 +48,11 @@
       display: none;
       padding: 20px;
       overflow-y: auto;
-      height: 100vh;
-      box-sizing: border-box;
     }
 
     #chat {
       max-width: 600px;
-      margin: 80px auto 20px auto; /* jättää tilaa headerille */
+      margin: auto;
     }
 
     input[type="text"] {
@@ -66,196 +62,89 @@
       border: none;
       border-radius: 5px;
       font-size: 16px;
-      box-sizing: border-box;
     }
 
-    .msg { margin: 10px 0; }
-    .user { color: #0f0; }
-    .bot { color: #0ff; }
-    .info-text { font-size: 14px; color: #888; margin-top: 10px; }
-
-    /* Kolikko-UI ja valikot */
-    header {
-      position: fixed;
-      top: 10px;
-      right: 20px;
-      display: flex;
-      align-items: center;
-      font-size: 20px;
-      z-index: 10;
-    }
-    header img {
-      width: 30px;
-      margin-right: 10px;
+    .msg {
+      margin: 10px 0;
     }
 
-    nav {
-      position: fixed;
-      top: 50%;
-      left: 10px;
-      transform: translateY(-50%);
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      z-index: 10;
-    }
-    nav button {
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 0;
-    }
-    nav button:disabled { cursor: default; opacity: 0.5; }
-    nav img {
-      width: 50px;
-      height: 50px;
+    .user {
+      color: #0f0;
     }
 
-    .page {
-      display: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.95);
-      padding: 20px;
-      box-sizing: border-box;
-      z-index: 20;
-    }
-    .page h1 { margin-top: 60px; }
-    .close {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      cursor: pointer;
-      width: 40px;
+    .bot {
+      color: #0ff;
     }
 
-    button.action {
-      padding: 10px 20px;
-      font-size: 18px;
-      margin-top: 20px;
-      border: none;
-      cursor: pointer;
-      border-radius: 6px;
-      background: #1e90ff;
-      color: #fff;
-    }
-    button.action:disabled { background: gray; cursor: default; opacity: 0.7; }
-
-    .task { margin-top: 10px; }
-    .shop-item { margin: 10px 0; cursor: pointer; }
-
-    /* mobiili: varmista skrollaus jos sisältöä */
-    @media (max-width: 700px) {
-      nav img { width: 42px; height: 42px; }
-      header { right: 10px; font-size: 18px; }
-      #chat { margin: 100px 12px 12px 12px; }
+    .info-text {
+      font-size: 14px;
+      color: #888;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
 
   <!-- Latausanimaatio -->
-  <div id="loader" aria-hidden="false">
-    <div class="spinner" aria-hidden="true"></div>
+  <div id="loader">
+    <div class="spinner"></div>
     <h2>Fyntiz lataa...</h2>
     <p class="info-text">Kirjoita <strong>lopeta</strong> lopettaaksesi keskustelun.</p>
   </div>
 
-  <!-- Chat + UI (piilotettu kunnes loader katoaa) -->
-  <div id="main-content" aria-hidden="true">
-    <header>
-      <img src="https://img.icons8.com/emoji/48/coin-emoji.png" alt="Kolikko">
-      <span id="coins">0</span>
-    </header>
-
-    <nav>
-      <button id="nav-daily" disabled onclick="openPage('daily')">
-        <img src="https://img.icons8.com/ios-filled/50/gift.png" alt="Daily">
-      </button>
-      <button id="nav-tasks" disabled onclick="openPage('tasks')">
-        <img src="https://img.icons8.com/ios-filled/50/task.png" alt="Tasks">
-      </button>
-      <button id="nav-shop" disabled onclick="openPage('shop')">
-        <img src="https://img.icons8.com/ios-filled/50/shop.png" alt="Shop">
-      </button>
-    </nav>
-
-    <!-- Daily Reward -->
-    <div id="daily" class="page" role="dialog" aria-hidden="true">
-      <img src="https://img.icons8.com/ios-filled/50/macos-close.png" class="close" onclick="closePage('daily')" alt="Sulje">
-      <h1>Päivittäinen palkinto</h1>
-      <button id="claimDaily" class="action" onclick="claimDaily()" disabled>Lunasta 100 kolikkoa</button>
-    </div>
-
-    <!-- Tasks -->
-    <div id="tasks" class="page" role="dialog" aria-hidden="true">
-      <img src="https://img.icons8.com/ios-filled/50/macos-close.png" class="close" onclick="closePage('tasks')" alt="Sulje">
-      <h1>Päivittäiset tehtävät</h1>
-      <div id="taskList"></div>
-    </div>
-
-    <!-- Shop -->
-    <div id="shop" class="page" role="dialog" aria-hidden="true">
-      <img src="https://img.icons8.com/ios-filled/50/macos-close.png" class="close" onclick="closePage('shop')" alt="Sulje">
-      <h1>Kauppa</h1>
-      <div class="shop-item" onclick="buyBackground('blue')">Sininen tausta - 1200 kolikkoa</div>
-      <div class="shop-item" onclick="buyBackground('red')">Punainen tausta - 1200 kolikkoa</div>
-      <div class="shop-item" onclick="buyBackground('green')">Vihreä tausta - 1200 kolikkoa</div>
-      <div class="shop-item" onclick="buyBackground('yellow')">Keltainen tausta - 1200 kolikkoa</div>
-      <div class="shop-item" onclick="buyBackground('purple')">Violetti tausta - 1200 kolikkoa</div>
-      <div class="shop-item" onclick="buyBackground('pink')">Pinkki tausta - 1200 kolikkoa</div>
-    </div>
-
-    <!-- Chat -->
+  <!-- Chat sisältö -->
+  <div id="main-content">
     <div id="chat">
       <h1>Tervetuloa Fyntizineen</h1>
-      <div id="messages" aria-live="polite" style="max-height:50vh; overflow:auto;"></div>
-      <input type="text" id="userInput" placeholder="Kirjoita viesti ja paina Enter..." disabled />
+      <div id="messages"></div>
+      <input type="text" id="userInput" placeholder="Kirjoita viesti ja paina Enter..." />
     </div>
   </div>
 
   <script>
-    // UI-valmiustila
-    let uiReady = false;
-
-    // Lataus -> piilota loader fade-outilla ja käynnistä UI
+    // Latausviive 5 sekuntia
     window.addEventListener("load", () => {
-      // Näytä spinner vähintään 5s, sitten fade-out
       setTimeout(() => {
-        const loader = document.getElementById("loader");
-        // fade-out
-        loader.style.opacity = "0";
-        loader.style.visibility = "hidden";
-        // odota transitionin verran, sitten piilota kokonaan ja näytä sisältö
-        setTimeout(() => {
-          loader.style.display = "none";
-          const main = document.getElementById("main-content");
-          main.style.display = "block";
-          main.setAttribute('aria-hidden', 'false');
-          initGameUI(); // aktivoidaan nappisysteemi ja chat
-        }, 800); // sama kuin CSS transition
-      }, 5000); // spinnerin näkyvyysaika
+        document.getElementById("loader").style.display = "none";
+        document.getElementById("main-content").style.display = "block";
+      }, 5000);
     });
 
-    // ===== Chatbot logiikka =====
+    // Chatbot logiikka
     const input = document.getElementById('userInput');
     const messages = document.getElementById('messages');
+
     const vastaukset = [
-      "Mielenkiintoista, kerro lisää!", "Aika jännää!", "Eikö olekin?",
-      "En ole varma, mitä tarkoitat.", "mitä mieltä olla?",
-      "Hahhaa, hauska vitsi :DD", "Mitä mieltä olet itse asiasta?",
-      "Onpa hauskaa keskustella!", "Onko huomenna keskiviikko? Tai ehkä tiistai?",
-      "Tiesitkö että tämän on koodannut Armin?", "Joo, en tuu auttaa sua läksyissä :DD",
-      "No on se ihan kivaa.", "Kiva kuulla!", "No jos kerran on pakko.",
-      "KYLLÄ", "Juu", "Huomenna", "Kiitos hyvää!", "Kyllä kiitos.",
-      "No ei ikävä kyllä.", "Hauska fakta: tiesitkö että sytkäri keksittiin ennen tulitikkuja?"
+      "Mielenkiintoista, kerro lisää!",
+      "Aika jännää!",
+      "Eikö olekin?",
+      "En ole varma, mitä tarkoitat.",
+      "Mitä mieltä olla?",
+      "Hahhaa, hauska vitsi :DD",
+      "Mitä mieltä olet itse asiasta?",
+      "Onpa hauskaa keskustella!",
+      "Onko huomenna keskiviikko? Tai ehkä tiistai?",
+      "Tiesitkö että tämän on koodannut Armin?",
+      "Joo, en tuu auttaa sua läksyissä :DD",
+      "No on se ihan kivaa.",
+      "Kiva kuulla!",
+      "No jos kerran on pakko.",
+      "KYLLÄ",
+      "Juu",
+      "Huomenna",
+      "Kiitos hyvää!",
+      "Kyllä kiitos.",
+      "No ei ikävä kyllä.",
+      "Hauska fakta: tiesitkö että sytkäri keksittiin ennen tulitikkuja?",
+      "Moi, Heippa!",
+      "Mun auto!",
+      "En muista.",
+      "Kyllä mutta ei."
+      
     ];
 
     input.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' && uiReady) {
+      if (e.key === 'Enter') {
         const text = input.value.trim();
         if (text === '') return;
 
@@ -280,120 +169,7 @@
       messages.appendChild(div);
       messages.scrollTop = messages.scrollHeight;
     }
-
-    // ======= Kolikko/Shop/Daily/Tasks logiikka =======
-    let coins = parseInt(localStorage.getItem('coins')) || 0;
-    let lastDaily = localStorage.getItem('lastDaily') || null;
-    const tasks = [
-      { text: "Lähetä Fyntizikselle 10 viestiä", reward: 200 },
-      { text: "Lähetä Fyntizikselle 12 viestiä", reward: 200 },
-      { text: "Lähetä Fyntizikselle 15 viestiä", reward: 200 }
-    ];
-
-    // Aktivoidaan UI vasta kun loader on hävinnyt
-    function initGameUI() {
-      uiReady = true;
-
-      // päivitä kolikkonäyttö
-      document.getElementById('coins').innerText = coins;
-
-      // ota nav-napit käyttöön
-      document.getElementById('nav-daily').disabled = false;
-      document.getElementById('nav-tasks').disabled = false;
-      document.getElementById('nav-shop').disabled = false;
-
-      // ota chat käyttöön
-      document.getElementById('userInput').disabled = false;
-
-      // päivitä daily-nappi tilan mukaan
-      const today = new Date().toDateString();
-      const claimBtn = document.getElementById('claimDaily');
-      if (lastDaily === today) {
-        claimBtn.disabled = true;
-      } else {
-        claimBtn.disabled = false;
-      }
-
-      // lataa tehtävät (placeholder)
-      loadTasks();
-    }
-
-    function claimDaily() {
-      if (!uiReady) return; // ei toimi ennen latausta
-      const now = new Date();
-      const today = now.toDateString();
-
-      if (lastDaily === today) {
-        // jos jostain syystä näppäin klikattiin
-        return;
-      }
-      coins += 100;
-      localStorage.setItem('coins', coins);
-      localStorage.setItem('lastDaily', today);
-      lastDaily = today;
-      document.getElementById('coins').innerText = coins;
-      document.getElementById('claimDaily').disabled = true;
-      alert("Sait 100 kolikkoa!");
-    }
-
-    function loadTasks() {
-      const taskList = document.getElementById('taskList');
-      taskList.innerHTML = '';
-      tasks.forEach((task, i) => {
-        const div = document.createElement('div');
-        div.className = 'task';
-        // Lisätään suorita-nappi (toimii vain kun uiReady)
-        const btn = document.createElement('button');
-        btn.textContent = 'Suorita';
-        btn.style.marginLeft = '12px';
-        btn.onclick = () => {
-          if (!uiReady) return;
-          coins += task.reward;
-          localStorage.setItem('coins', coins);
-          document.getElementById('coins').innerText = coins;
-          btn.disabled = true;
-          btn.textContent = 'Suoritettu';
-          alert(Sait ${task.reward} kolikkoa!);
-        };
-
-        div.textContent = ${task.text} - Palkinto: ${task.reward} kolikkoa;
-        div.appendChild(btn);
-        taskList.appendChild(div);
-      });
-    }
-
-    function buyBackground(color) {
-      if (!uiReady) return;
-      if (coins < 1200) {
-        alert("Ei tarpeeksi kolikoita!");
-        return;
-      }
-      coins -= 1200;
-      document.body.style.backgroundColor = color;
-      localStorage.setItem('coins', coins);
-      document.getElementById('coins').innerText = coins;
-      alert(Ostit ${color} taustan!);
-    }
-
-    function openPage(id) {
-      if (!uiReady) return;
-      const page = document.getElementById(id);
-      if (!page) return;
-      page.style.display = 'block';
-      page.setAttribute('aria-hidden', 'false');
-    }
-    function closePage(id) {
-      const page = document.getElementById(id);
-      if (!page) return;
-      page.style.display = 'none';
-      page.setAttribute('aria-hidden', 'true');
-    }
-
-    // turvallisuus: jos käyttäjä sulkee sivun, tallenna kolikot
-    window.addEventListener('beforeunload', () => {
-      localStorage.setItem('coins', coins);
-      if (lastDaily) localStorage.setItem('lastDaily', lastDaily);
-    });
   </script>
+
 </body>
 </html>
