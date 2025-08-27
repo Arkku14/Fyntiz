@@ -84,6 +84,88 @@
   </style>
 </head>
 <body>
+
+  <!-- Latausanimaatio -->
+  <div id="loader">
+    <div class="spinner"></div>
+    <h2>Fyntiz lataa...</h2>
+    <p class="info-text">Kirjoita <strong>lopeta</strong> lopettaaksesi keskustelun.</p>
+  </div>
+
+  <!-- Chat sisältö -->
+  <div id="main-content">
+    <div id="chat">
+      <h1>Tervetuloa Fyntizineen</h1>
+      <div id="messages"></div>
+      <input type="text" id="userInput" placeholder="Kirjoita viesti ja paina Enter..." />
+    </div>
+  </div>
+
+  <script>
+    // Latausviive 5 sekuntia
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.getElementById("loader").style.display = "none";
+        document.getElementById("main-content").style.display = "block";
+      }, 5000);
+    });
+
+    // Chatbot logiikka
+    const input = document.getElementById('userInput');
+    const messages = document.getElementById('messages');
+
+    const vastaukset = [
+      "Mielenkiintoista, kerro lisää!",
+      "Aika jännää!",
+      "Eikö olekin?",
+      "En ole varma, mitä tarkoitat.",
+      "mitä mieltä olla?",
+      "Hahhaa, hauska vitsi :DD",
+      "Mitä mieltä olet itse asiasta?",
+      "Onpa hauskaa keskustella!",
+      "Onko huomenna keskiviikko? Tai ehkä tiistai?",
+      "Tiesitkö että tämän on koodannut Armin?",
+      "Joo, en tuu auttaa sua läksyissä :DD",
+      "No on se ihan kivaa.",
+      "Kiva kuulla!",
+      "No jos kerran on pakko.",
+      "KYLLÄ",
+      "Juu",
+      "Huomenna",
+      "Kiitos hyvää!",
+      "Kyllä kiitos.",
+      "No ei ikävä kyllä.",
+      "Hauska fakta: tiesitkö että sytkäri keksittiin ennen tulitikkuja?"
+    ];
+
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        const text = input.value.trim();
+        if (text === '') return;
+
+        showMessage("Sinä: " + text, 'user');
+
+        if (text.toLowerCase() === 'lopeta') {
+          showMessage("Fyntiz: Oli kiva jutella, moikka!", 'bot');
+          input.disabled = true;
+          return;
+        }
+
+        const vastaus = vastaukset[Math.floor(Math.random() * vastaukset.length)];
+        showMessage("Fyntiz: " + vastaus, 'bot');
+        input.value = '';
+      }
+    });
+
+    function showMessage(msg, cls) {
+      const div = document.createElement('div');
+      div.textContent = msg;
+      div.classList.add('msg', cls);
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+
 <!-- Kolikko UI -->
 <div id="coins-container">
   <img src="https://cdn-icons-png.flaticon.com/512/138/138292.png" alt="coins">
@@ -92,10 +174,6 @@
 
 <!-- Päävalikon napit -->
 <div id="main-menu">
-  <button class="menu-btn" id="daily-btn">
-    <img src="https://cdn-icons-png.flaticon.com/512/3176/3176366.png" alt="daily">
-    Päivittäinen palkinto
-  </button>
   <button class="menu-btn" id="tasks-btn">
     <img src="https://cdn-icons-png.flaticon.com/512/1827/1827392.png" alt="tasks">
     Tehtävät
@@ -106,23 +184,20 @@
   </button>
 </div>
 
-<!-- Päivittäinen palkinto Modal -->
-<div class="modal" id="daily-modal">
-  <button class="close-btn"><img src="https://cdn-icons-png.flaticon.com/512/1828/1828778.png" alt="close"></button>
-  <h1>Päivittäinen palkinto</h1>
-  <button id="daily-claim-btn">Lunasta 100 kolikkoa</button>
-</div>
-
 <!-- Tehtävät Modal -->
 <div class="modal" id="tasks-modal">
-  <button class="close-btn"><img src="https://cdn-icons-png.flaticon.com/512/1828/1828778.png" alt="close"></button>
+  <button class="close-btn">
+    <img src="https://cdn-icons-png.flaticon.com/512/1828/1828778.png" alt="close">
+  </button>
   <h1>Päivittäiset tehtävät</h1>
   <ul id="tasks-list"></ul>
 </div>
 
 <!-- Kauppa Modal -->
 <div class="modal" id="shop-modal">
-  <button class="close-btn"><img src="https://cdn-icons-png.flaticon.com/512/1828/1828778.png" alt="close"></button>
+  <button class="close-btn">
+    <img src="https://cdn-icons-png.flaticon.com/512/1828/1828778.png" alt="close">
+  </button>
   <h1>Kauppa</h1>
   <div id="shop-items"></div>
 </div>
@@ -182,7 +257,7 @@
     height: 24px;
   }
 
-  /* Modalin perusasetukset */
+  /* Modal */
   .modal {
     display: none;
     position: fixed;
@@ -197,6 +272,8 @@
     text-align: center;
     padding: 20px;
   }
+
+  /* Ruksi */
   .close-btn {
     position: absolute;
     top: 20px;
@@ -208,21 +285,6 @@
   .close-btn img {
     width: 32px;
     height: 32px;
-  }
-
-  /* Daily Reward */
-  #daily-claim-btn {
-    padding: 15px 25px;
-    font-size: 18px;
-    border: none;
-    border-radius: 8px;
-    background-color: green;
-    color: white;
-    cursor: pointer;
-  }
-  #daily-claim-btn.disabled {
-    background-color: grey;
-    cursor: not-allowed;
   }
 
   /* Kauppa */
@@ -237,11 +299,8 @@
 </style>
 
 <script>
-  // Tiedot
+  // Tallennus ja alustus
   let coins = parseInt(localStorage.getItem("coins")) || 0;
-  let lastDailyClaim = localStorage.getItem("lastDailyClaim") || "";
-  const colors = ["Sininen", "Punainen", "Keltainen", "Vihreä", "Violetti", "Pinkki"];
-
   const coinsSpan = document.getElementById("coins");
   coinsSpan.textContent = coins;
 
@@ -251,12 +310,12 @@
     localStorage.setItem("coins", coins);
   }
 
-  // Napit näkyviin 3 sekunnin kuluttua
+  // Napit näkyviin 3 sekunnissa
   setTimeout(() => {
     document.querySelectorAll(".menu-btn").forEach(btn => btn.style.display = "flex");
   }, 3000);
 
-  // Modalin hallinta
+  // Modalien avaus ja sulku
   function showModal(id) {
     document.getElementById(id).style.display = "flex";
   }
@@ -265,145 +324,46 @@
   }
   document.querySelectorAll(".close-btn").forEach(btn => btn.addEventListener("click", closeModals));
 
-  document.getElementById("daily-btn").addEventListener("click", () => showModal("daily-modal"));
   document.getElementById("tasks-btn").addEventListener("click", () => showModal("tasks-modal"));
   document.getElementById("shop-btn").addEventListener("click", () => showModal("shop-modal"));
 
-  // Päivittäinen palkinto
-  const claimBtn = document.getElementById("daily-claim-btn");
-  function checkDaily() {
-    const today = new Date().toDateString();
-    if (lastDailyClaim === today) {
-      claimBtn.classList.add("disabled");
-      claimBtn.textContent = "Jo lunastettu";
-    } else {
-      claimBtn.classList.remove("disabled");
-      claimBtn.textContent = "Lunasta 100 kolikkoa";
-    }
-  }
-  claimBtn.addEventListener("click", () => {
-    if (claimBtn.classList.contains("disabled")) return;
-    updateCoins(100);
-    lastDailyClaim = new Date().toDateString();
-    localStorage.setItem("lastDailyClaim", lastDailyClaim);
-    checkDaily();
-  });
-  checkDaily();
-  
-  // Tehtävät
+  // Tehtävät (vain listaus)
   const tasks = [
-    "Lähetä 10 viestiä Fyntizille",
-    "Lähetä 12 viestiä Fyntizille",
-    "Lähetä 15 viestiä Fyntizille"
+    "Lähetä 10 viestiä Fyntizille - Palkinto: 200 kolikkoa",
+    "Lähetä 12 viestiä Fyntizille - Palkinto: 200 kolikkoa",
+    "Lähetä 15 viestiä Fyntizille - Palkinto: 200 kolikkoa"
   ];
   const taskList = document.getElementById("tasks-list");
   tasks.forEach(t => {
     const li = document.createElement("li");
-    li.textContent = t + " - Palkinto: 200 kolikkoa";
+    li.textContent = t;
     taskList.appendChild(li);
   });
 
   // Kauppa
+  const colors = ["Sininen", "Punainen", "Keltainen", "Vihreä", "Violetti", "Pinkki"];
   const shop = document.getElementById("shop-items");
   colors.forEach(color => {
     const div = document.createElement("div");
     div.className = "shop-item";
-    div.textContent = color + " tausta - 1200 kolikkoa";
+    div.textContent = ${color} tausta - 100 kolikkoa;
     div.addEventListener("click", () => {
-      if (coins >= 1200) {
-        updateCoins(-1200);
+      if (coins >= 100) {
+        updateCoins(-100);
         document.body.style.backgroundColor = color.toLowerCase();
-        alert(color + " tausta ostettu ja asetettu!");
+        alert(${color} tausta ostettu ja asetettu!);
       } else {
         alert("Ei tarpeeksi kolikoita!");
       }
     });
     shop.appendChild(div);
   });
+    
 </script>
-  <!-- Latausanimaatio -->
-  <div id="loader">
-    <div class="spinner"></div>
-    <h2>Fyntiz lataa...</h2>
-    <p class="info-text">Kirjoita <strong>lopeta</strong> lopettaaksesi keskustelun.</p>
-  </div>
 
-  <!-- Chat sisältö -->
-  <div id="main-content">
-    <div id="chat">
-      <h1>Tervetuloa Fyntizineen</h1>
-      <div id="messages"></div>
-      <input type="text" id="userInput" placeholder="Kirjoita viesti ja paina Enter..." />
-    </div>
-  </div>
 
-  <script>
-    // Latausviive 3 sekuntia
-    window.addEventListener("load", () => {
-      setTimeout(() => {
-        document.getElementById("loader").style.display = "none";
-        document.getElementById("main-content").style.display = "block";
-      }, 3000);
-    });
 
-    // Chatbot logiikka
-    const input = document.getElementById('userInput');
-    const messages = document.getElementById('messages');
-
-    const vastaukset = [
-      "Mielenkiintoista, kerro lisää!",
-      "Aika jännää!",
-      "Eikö olekin?",
-      "En ole varma, mitä tarkoitat.",
-      "Mitä mieltä olla?",
-      "Hahhaa, hauska vitsi :DD",
-      "Mitä mieltä olet itse asiasta?",
-      "Onpa hauskaa keskustella!",
-      "Onko huomenna keskiviikko? Tai ehkä tiistai?",
-      "Joo, en tuu auttaa sua läksyissä :DD",
-      "No on se ihan kivaa.",
-      "Kiva kuulla!",
-      "No jos kerran on pakko.",
-      "KYLLÄ",
-      "Juu",
-      "Huomenna",
-      "Kiitos hyvää!",
-      "Kyllä kiitos.",
-      "No ei ikävä kyllä.",
-      "Hauska fakta: tiesitkö että sytkäri keksittiin ennen tulitikkuja?",
-      "Moi, Heippa!",
-      "Mun auto!",
-      "En muista.",
-      "Kyllä mutta ei."
-      
-    ];
-
-    input.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') {
-        const text = input.value.trim();
-        if (text === '') return;
-
-        showMessage("Sinä: " + text, 'user');
-
-        if (text.toLowerCase() === 'lopeta') {
-          showMessage("Fyntiz: Oli kiva jutella, moikka!", 'bot');
-          input.disabled = true;
-          return;
-        }
-
-        const vastaus = vastaukset[Math.floor(Math.random() * vastaukset.length)];
-        showMessage("Fyntiz: " + vastaus, 'bot');
-        input.value = '';
-      }
-    });
-
-    function showMessage(msg, cls) {
-      const div = document.createElement('div');
-      div.textContent = msg;
-      div.classList.add('msg', cls);
-      messages.appendChild(div);
-      messages.scrollTop = messages.scrollHeight;
-    }
+    
   </script>
 
 </body>
