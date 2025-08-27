@@ -29,7 +29,72 @@
       transition: opacity 0.8s ease, visibility 0.8s ease;
       text-align: center;
     }
+    <div id="coin-container">
+  <img id="coin-logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Gold_coin_icon.svg/1024px-Gold_coin_icon.svg.png" alt="Coin">
+  <span id="coin-count">0</span>
+</div>
 
+<style>
+  #coin-container {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: #ffd700;
+    color: black;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 9999; /* varmistaa että näkyy muiden elementtien päällä */
+  }
+  #coin-logo {
+    width: 24px;
+    height: 24px;
+  }
+</style>
+
+<script>
+// ===== Coin & Secret Code -järjestelmä =====
+let coins = 0;
+let coinInterval;
+
+// Funktio satunnaisen salaisen koodin luomiseen
+function generateSecretCode(length = 6) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < length; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+}
+
+// Funktio, joka lisää coineja ja näyttää koodin
+function rewardCoins() {
+    const code = generateSecretCode();
+    console.log("Fyntiz Secret Code: " + code);
+    coins += 10; // lisätään 10 coinea
+    document.getElementById('coin-count').textContent = coins;
+}
+
+// Aloitetaan coin-järjestelmä
+function startCoins() {
+    rewardCoins(); // heti ensimmäinen kerta
+    coinInterval = setInterval(rewardCoins, 60000); // joka minuutti
+}
+
+// Keskeytetään coin-järjestelmä
+function stopCoins() {
+    clearInterval(coinInterval);
+    console.log("Coin-järjestelmä keskeytetty!");
+}
+
+// Käynnistetään automaattisesti
+startCoins();
+</script>
+}
     .spinner {
       border: 6px solid #222;
       border-top: 6px solid #fff;
