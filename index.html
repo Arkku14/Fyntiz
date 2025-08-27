@@ -84,7 +84,243 @@
   </style>
 </head>
 <body>
+<!-- Kolikko UI -->
+<div id="coins-container">
+  <img src="https://cdn-icons-png.flaticon.com/512/138/138292.png" alt="coins">
+  <span id="coins">0</span>
+</div>
 
+<!-- Päävalikon napit -->
+<div id="main-menu">
+  <button class="menu-btn" id="daily-btn">
+    <img src="https://cdn-icons-png.flaticon.com/512/3176/3176366.png" alt="daily">
+    Päivittäinen palkinto
+  </button>
+  <button class="menu-btn" id="tasks-btn">
+    <img src="https://cdn-icons-png.flaticon.com/512/1827/1827392.png" alt="tasks">
+    Tehtävät
+  </button>
+  <button class="menu-btn" id="shop-btn">
+    <img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" alt="shop">
+    Kauppa
+  </button>
+</div>
+
+<!-- Päivittäinen palkinto Modal -->
+<div class="modal" id="daily-modal">
+  <button class="close-btn"><img src="https://cdn-icons-png.flaticon.com/512/1828/1828778.png" alt="close"></button>
+  <h1>Päivittäinen palkinto</h1>
+  <button id="daily-claim-btn">Lunasta 100 kolikkoa</button>
+</div>
+
+<!-- Tehtävät Modal -->
+<div class="modal" id="tasks-modal">
+  <button class="close-btn"><img src="https://cdn-icons-png.flaticon.com/512/1828/1828778.png" alt="close"></button>
+  <h1>Päivittäiset tehtävät</h1>
+  <ul id="tasks-list"></ul>
+</div>
+
+<!-- Kauppa Modal -->
+<div class="modal" id="shop-modal">
+  <button class="close-btn"><img src="https://cdn-icons-png.flaticon.com/512/1828/1828778.png" alt="close"></button>
+  <h1>Kauppa</h1>
+  <div id="shop-items"></div>
+</div>
+
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: black;
+    color: white;
+    overflow: hidden;
+  }
+
+  /* Kolikko oikeaan yläkulmaan */
+  #coins-container {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    font-weight: bold;
+    z-index: 200;
+  }
+  #coins-container img {
+    width: 30px;
+    height: 30px;
+    margin-right: 5px;
+  }
+
+  /* Päävalikko */
+  #main-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+
+  /* Napit */
+  .menu-btn {
+    display: none;
+    margin: 10px;
+    padding: 15px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    cursor: pointer;
+    background-color: #444;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .menu-btn img {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Modalin perusasetukset */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.95);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 20px;
+  }
+  .close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  .close-btn img {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Daily Reward */
+  #daily-claim-btn {
+    padding: 15px 25px;
+    font-size: 18px;
+    border: none;
+    border-radius: 8px;
+    background-color: green;
+    color: white;
+    cursor: pointer;
+  }
+  #daily-claim-btn.disabled {
+    background-color: grey;
+    cursor: not-allowed;
+  }
+
+  /* Kauppa */
+  .shop-item {
+    background: #222;
+    margin: 10px;
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 200px;
+  }
+</style>
+
+<script>
+  // Tiedot
+  let coins = parseInt(localStorage.getItem("coins")) || 0;
+  let lastDailyClaim = localStorage.getItem("lastDailyClaim") || "";
+  const colors = ["Sininen", "Punainen", "Keltainen", "Vihreä", "Violetti", "Pinkki"];
+
+  const coinsSpan = document.getElementById("coins");
+  coinsSpan.textContent = coins;
+
+  function updateCoins(amount) {
+    coins += amount;
+    coinsSpan.textContent = coins;
+    localStorage.setItem("coins", coins);
+  }
+
+  // Napit näkyviin 3 sekunnin kuluttua
+  setTimeout(() => {
+    document.querySelectorAll(".menu-btn").forEach(btn => btn.style.display = "flex");
+  }, 3000);
+
+  // Modalin hallinta
+  function showModal(id) {
+    document.getElementById(id).style.display = "flex";
+  }
+  function closeModals() {
+    document.querySelectorAll(".modal").forEach(m => m.style.display = "none");
+  }
+  document.querySelectorAll(".close-btn").forEach(btn => btn.addEventListener("click", closeModals));
+
+  document.getElementById("daily-btn").addEventListener("click", () => showModal("daily-modal"));
+  document.getElementById("tasks-btn").addEventListener("click", () => showModal("tasks-modal"));
+  document.getElementById("shop-btn").addEventListener("click", () => showModal("shop-modal"));
+
+  // Päivittäinen palkinto
+  const claimBtn = document.getElementById("daily-claim-btn");
+  function checkDaily() {
+    const today = new Date().toDateString();
+    if (lastDailyClaim === today) {
+      claimBtn.classList.add("disabled");
+      claimBtn.textContent = "Jo lunastettu";
+    } else {
+      claimBtn.classList.remove("disabled");
+      claimBtn.textContent = "Lunasta 100 kolikkoa";
+    }
+  }
+  claimBtn.addEventListener("click", () => {
+    if (claimBtn.classList.contains("disabled")) return;
+    updateCoins(100);
+    lastDailyClaim = new Date().toDateString();
+    localStorage.setItem("lastDailyClaim", lastDailyClaim);
+    checkDaily();
+  });
+  checkDaily();
+  
+  // Tehtävät
+  const tasks = [
+    "Lähetä 10 viestiä Fyntizille",
+    "Lähetä 12 viestiä Fyntizille",
+    "Lähetä 15 viestiä Fyntizille"
+  ];
+  const taskList = document.getElementById("tasks-list");
+  tasks.forEach(t => {
+    const li = document.createElement("li");
+    li.textContent = t + " - Palkinto: 200 kolikkoa";
+    taskList.appendChild(li);
+  });
+
+  // Kauppa
+  const shop = document.getElementById("shop-items");
+  colors.forEach(color => {
+    const div = document.createElement("div");
+    div.className = "shop-item";
+    div.textContent = color + " tausta - 1200 kolikkoa";
+    div.addEventListener("click", () => {
+      if (coins >= 1200) {
+        updateCoins(-1200);
+        document.body.style.backgroundColor = color.toLowerCase();
+        alert(color + " tausta ostettu ja asetettu!");
+      } else {
+        alert("Ei tarpeeksi kolikoita!");
+      }
+    });
+    shop.appendChild(div);
+  });
+</script>
   <!-- Latausanimaatio -->
   <div id="loader">
     <div class="spinner"></div>
@@ -124,7 +360,6 @@
       "Mitä mieltä olet itse asiasta?",
       "Onpa hauskaa keskustella!",
       "Onko huomenna keskiviikko? Tai ehkä tiistai?",
-      "Tiesitkö että tämän on koodannut Armin?",
       "Joo, en tuu auttaa sua läksyissä :DD",
       "No on se ihan kivaa.",
       "Kiva kuulla!",
