@@ -97,7 +97,7 @@
     <div id="chat">
       <h1>Tervetuloa Fyntizineen</h1>
       <div id="messages"></div>
-      <input type="text" id="userInput" placeholder="Kirjoita viesti ja paina Enter..." />
+      <input type="text" id="userInput" placeholder="Kirjota viesti mulle" />
     </div>
   </div>
 
@@ -107,7 +107,7 @@
       setTimeout(() => {
         document.getElementById("loader").style.display = "none";
         document.getElementById("main-content").style.display = "block";
-      }, 2000);
+      }, 5000);
     });
 
     // Chatbot logiikka
@@ -147,8 +147,6 @@
       "Hauska fakta: sitä ei oo D:",
       "Hauska fakta: tiesitkö että tää on fakta?",
       "Terve vai terveellinen vai terve?"
-      
-      
     ];
 
     input.addEventListener('keydown', function (e) {
