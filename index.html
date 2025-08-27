@@ -114,7 +114,7 @@
     const input = document.getElementById('userInput');
     const messages = document.getElementById('messages');
 
-    const vastaukset = [
+    const HulluVastaukset = [
       "Mielenkiintoista, kerro lisää!",
       "Aika jännää!",
       "Eikö olekin?",
@@ -147,8 +147,19 @@
       "Hauska fakta: sitä ei oo D:",
       "Hauska fakta: tiesitkö että tää on fakta?",
       "Terve vai terveellinen vai terve?",
-      "Onko 2+2=5?"
+      "Onko 2+2=5?",
+      "Pizza on paras ainesosa sateessa.",
+      "Eikö olekin hullua että linnut osaavat lentää takaperin?"
     ];
+
+    //joo näit se ymmärtää
+    const avainsanat = {
+      "moi": ["Hei hei, vai onko se moi moi?"],
+      "mitä": ["Mitäköhan se tarkoittaa? Ketsuppia ehkä?"],
+      "kuka" ["Olen hullujen maassa tehty robotti :DDDD"],
+      "paras" ["ylivoimaisesti minä :DD"],
+      "hullu" ["Siis mitä sä nyt selität??"]
+    };
 
     input.addEventListener('keydown', function (e) {
       if (e.key === 'Enter') {
@@ -163,10 +174,21 @@
           return;
         }
 
-        const vastaus = vastaukset[Math.floor(Math.random() * vastaukset.length)];
-        showMessage("Fyntiz: " + vastaus, 'bot');
-        input.value = '';
+      //tää sit tarkistaa niit avain sanoi
+      let loydetty = false
+      for(const key in avainsanat){
+        if(lowerText.includes(key)){
+          const vaihtoehdot = avainsanat[key];
+          vastaus = vaihtoehdot[Math.floor(Math.random()*vaihtoehdot.length)];
+          loydetty = true
+          break;
+        }
       }
+
+      if(!loydetty){
+        vastaus = hulluVastaukset[Math.floor(Math.random()*hulluVastaukset.length)];
+      }
+      
     });
 
     function showMessage(msg, cls) {
